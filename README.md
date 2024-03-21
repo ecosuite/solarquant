@@ -9,7 +9,7 @@ A containerized ready to go version of SolarQuant is maintained here: https://hu
 
 ### Documentation
 
-A live pre-built version of the SolarQuant documentation is available here: https://ecogyenergy.github.io/solarquant
+A live pre-built version of the SolarQuant documentation is available here: https://ecosuite.github.io/solarquant
 
 To build the latest documentation from source, compile the Sphinx[1] documentation in the `docs` directory:
 
