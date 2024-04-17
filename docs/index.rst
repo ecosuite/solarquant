@@ -7,7 +7,7 @@ SolarQuant Documentation
 ======================================
 
 The SolarQuant environment tooling allows the user to easily source training data to be used for training machine
-learning predictors. SolarQuant works by consuming SolarNetwork [#]_ and OrangeButton [#]_ data, both of which are free and
+learning predictors. SolarQuant works by consuming SolarNetwork [#]_ , OrangeButton [#]_ , and i2x [#]_ data, all of which are free and
 open source.
 
 .. note::
@@ -33,5 +33,8 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+ .. rubric:: Footnotes
+
  .. [#] https://solarnetwork.net/
  .. [#] https://orangebutton.io/
+ .. [#] https://energy.gov/i2x

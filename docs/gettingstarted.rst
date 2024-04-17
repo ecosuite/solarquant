@@ -16,8 +16,8 @@ Firstly, install Docker [#]_. Once this has been accomplished, you can pull the 
 
 .. code-block:: console
 
-    $ docker pull ecogyenergy/solarquant:latest
-    $ docker run --rm -it --entrypoint bash ecogyenergy/solarquant:latest
+    $ docker pull ecosuite/solarquant:latest
+    $ docker run --rm -it --entrypoint bash ecosuite/solarquant:latest
     # sqc -h
       Usage: sqc [options] [command]
 
@@ -37,9 +37,9 @@ The recommended way of using SolarQuant is to use a shell alias on Unix-like she
 
 .. code-block:: console
 
-    $ docker pull ecogyenergy/solarquant:latest
-    $ docker run --rm -it --entrypoint bash ecogyenergy/solarquant:latest
-    $ alias sqc="docker run --privileged -it --rm -v '$PWD:/local' ecogyenergy/solarquant:latest --config /local/sqc.json"
+    $ docker pull ecosuite/solarquant:latest
+    $ docker run --rm -it --entrypoint bash ecosuite/solarquant:latest
+    $ alias sqc="docker run --privileged -it --rm -v '$PWD:/local' ecosuite/solarquant:latest --config /local/sqc.json"
     $ sqc -h
       Usage: sqc [options] [command]
     ...
@@ -57,7 +57,7 @@ To install the SolarQuant Environment directly on your machine, clone the code l
 
 .. code-block:: console
 
-    $ git clone git@github.com:ecogyenergy/solarquant.git
+    $ git clone git@github.com:ecosuite/solarquant.git
     $ cd solarquant
     $ npm install
     [ .. ommitted ]
@@ -241,6 +241,31 @@ columns of data:
     `/LN/RC/S1/GEN/*` to fetch every source of this type.
 
 
+Fetching i2x data
+~~~~~~~~~~~~~~~~~
+
+i2x [#]_ is accessible through SolarQuant with the `projects i2x` subcommand. This data is given back to the
+user in JSON encoding, which can be further inspected elsewhere using the `jq` command or some other utility.
+
+The i2x subcommand requires `start` and `end` arguments, and optionally supports a `project` argument to
+only fetch the i2x data associated with the given project.
+
+.. code-block:: console
+
+    $ sqc projects i2x --project G2 --start 2024-03-14T02:00:00.772T --end 2024-04-14T02:00:00.772T
+      {
+      "G2": {
+          "ratedPower": 241.5,
+          "technology": "PV",
+          "storedEnergy": 0,
+          "dateOfApplication": "2013-06-25",
+          "timeFromApplicationToInterconnectedAgreement": "",
+          "timeFromConstructionCompletionToPermissionToOperate": "",
+          "status": "operational"
+        }
+      }
+
+
 Fetching Datums
 ~~~~~~~~~~~~~~~
 
@@ -376,5 +401,8 @@ Common Issues
     $ sqc projects source /DOESNT-EXIST/**
     Failed to get matching source IDS: Error: Request failed with status code 403
 
+.. rubric:: Footnotes
+
 .. [#] There are multiple ways of installing Docker, follow the relevant instructions for your operating system:
     https://docs.docker.com/get-docker/
+.. [#] https://energy.gov/i2x
