@@ -3,7 +3,7 @@
 process.env.NODE_NO_WARNINGS = '1';
 
 import { Command } from 'commander';
-import { listAMSProjects, listAMSSites, listAMSSources, listEvents } from './ams.js'
+import { i2x, listAMSProjects, listAMSSites, listAMSSources, listEvents } from './ams.js'
 import { authenticateAMS, authenticateSolarNetwork, setConfigPath } from './config.js';
 import { fetchSNDatums, listSourceMeasurements, fetchCompressionTypes, fetchDestinationTypes, fetchOutputTypes, fetchExportTasks, startExportTask, FetchSource, listLocationMeasurements, getDefaultFormat } from './solarnetwork.js';
 
@@ -41,6 +41,23 @@ projects.command('list')
   .action(async (opts) => {
     try {
       await listAMSProjects(opts['codes'])
+    } catch (e) {
+      console.error(e)
+    }
+  })
+
+const i2xCmd = projects.command('i2x')
+i2xCmd
+  .option('-p, --project <project>', 'Project code to limit export to')
+  .requiredOption('-s, --start <start>', 'Start time/date')
+  .requiredOption('-e, --end <end>', 'Start time/date')
+  .description('Use i2x endpoint')
+  .action(async (start: string, end: string) => {
+    try {
+      const opts = i2xCmd.opts()
+      await i2x(start, end, {
+        "project": opts['project'],
+      })
     } catch (e) {
       console.error(e)
     }

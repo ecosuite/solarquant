@@ -57,7 +57,7 @@ export async function authenticateAMS(): Promise<void> {
   }
 
   if (!cfg.ams?.url) {
-    const def = 'https://api.ecogytest.io'
+    const def = 'https://api.ecosuite.io'
     cfg.ams.url = question(`Ecosuite URL [${def}]: `, { defaultInput: def })
   }
   if (!cfg.ams?.region) {
