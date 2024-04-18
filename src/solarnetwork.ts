@@ -4,7 +4,7 @@ import { Table } from 'console-table-printer';
 import { WriteStream } from 'fs';
 import moment from 'moment';
 import randomWords from 'random-words'
-import { AuthorizationV2Builder, DatumStreamMetadataRegistry } from 'solarnetwork-api-core';
+import { DatumStreamMetadataRegistry } from 'solarnetwork-api-core/lib/util/index.js';
 import { Result } from 'true-myth';
 
 import { readConfigFile, SNConfig } from './config.js';

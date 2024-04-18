@@ -1,6 +1,6 @@
 import axios from 'axios';
 import moment from 'moment';
-import { AuthorizationV2Builder, HttpHeaders } from 'solarnetwork-api-core';
+import { AuthorizationV2Builder, HttpHeaders } from 'solarnetwork-api-core/lib/net/index.js';
 import { Result } from 'true-myth'
 import { URL, URLSearchParams } from 'url';
 
