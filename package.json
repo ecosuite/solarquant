@@ -12,7 +12,7 @@
   "author": "Thomas Passmore",
   "license": "MIT",
   "bin": {
-    "sqc": "./src/index.js"
+    "sqc": "./dist/index.js"
   },
   "devDependencies": {
     "@types/node": "^18.11.0",

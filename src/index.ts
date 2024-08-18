@@ -1,4 +1,4 @@
-#!/usr/bin / env - S NODE_OPTIONS = --no - warnings node
+#!/usr/bin/env -S NODE_OPTIONS=--no-warnings node
 
 process.env.NODE_NO_WARNINGS = '1';
 

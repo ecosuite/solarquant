@@ -7,7 +7,6 @@ RUN npm install
 RUN apt update && apt install podman -y
 
 COPY . .
-RUN node_modules/typescript/bin/tsc
-RUN npm install -g .
+RUN npm run build && npm install -g .
 
 ENTRYPOINT ["sqc"]
