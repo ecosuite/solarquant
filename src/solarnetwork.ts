@@ -922,33 +922,42 @@ export async function getDefaultFormat(source: string):
       `Failed to fetch list of sources: ${sources.error.message}`))
   }
 
-  const datums = await getDatums(
-    cfg.sn, true, sources.value[0], ids.value, undefined, undefined)
-  if (datums.isErr) {
-    return Result.err(datums.error)
+  // Create sets to store unique column names
+  const instantaneousSet = new Set<string>()
+  const accumulatingSet = new Set<string>()
+  const statusSet = new Set<string>()
+
+  // Fetch and process datums for each source
+  for (const source of sources.value) {
+    const datums = await getDatums(
+      cfg.sn, true, source, ids.value, undefined, undefined)
+    if (datums.isErr) {
+      return Result.err(datums.error)
+    }
+
+    if (!datums.value.response.meta) {
+      continue
+    }
+
+    // Process all meta entries for this source
+    for (const meta of datums.value.response.meta) {
+      if (meta.i) {
+        meta.i.forEach(i => instantaneousSet.add(i.toString()))
+      }
+      if (meta.a) {
+        meta.a.forEach(a => accumulatingSet.add(a.toString()))
+      }
+      if (meta.s) {
+        meta.s.forEach(s => statusSet.add(s.toString()))
+      }
+    }
   }
 
-  if (!datums.value.response.meta) {
-    return Result.ok('timestamp')
-  }
-
-  const d = datums.value.response.meta[0]
+  // Build the format string
   let format = 'timestamp,'
-  if (d.i) {
-    for (const i of d.i) {
-      format += (i.toString() + ',')
-    }
-  }
-  if (d.a) {
-    for (const a of d.a) {
-      format += (a.toString() + ',')
-    }
-  }
-  if (d.s) {
-    for (const s of d.s) {
-      format += (s.toString() + ',')
-    }
-  }
+  instantaneousSet.forEach(i => format += i + ',')
+  accumulatingSet.forEach(a => format += a + ',')
+  statusSet.forEach(s => format += s + ',')
 
   return Result.ok(format)
 }
