@@ -5,7 +5,10 @@ the user to easily source training data to be used for training machine
 learning predictors. SolarQuant works by consuming OrangeButton and
 SolarNetwork (http://solarnetwork.net) data, both of which are free and open source.
 
+High level process flow:
 ![High level SolarQuant process flow diagram](img/SolarQuant_and_SQC_process_flow-2000x1250.jpg)
+
+Note: Steps 1 and 2 in the above process flow are demonstrated in this [SQC video](https://www.youtube.com/watch?v=bvcLa1SFhjA).
 
 A containerized ready to go version of SolarQuant is maintained here: https://hub.docker.com/r/ecosuite/solarquant
 
