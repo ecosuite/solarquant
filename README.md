@@ -9,7 +9,8 @@ High level process flow:
 ![High level SolarQuant process flow diagram](img/SolarQuant_and_SQC_process_flow-2000x1250.jpg)
 
 <ins>Note</ins>: Steps 1 and 2 in the above process flow are demonstrated in this [SQC video](https://www.youtube.com/watch?v=bvcLa1SFhjA)
-and examples of the resulting inference algorithms (i.e. step 4) are beginning to be collected [here](https://github.com/ecosuite/solarquant-zoo).
+and examples of the resulting inference algorithms (i.e. step 4) are beginning to be collected [here](https://github.com/ecosuite/solarquant-zoo)
+in our model zoo.
 
 A containerized ready to go version of SolarQuant is maintained here: https://hub.docker.com/r/ecosuite/solarquant
 
