@@ -538,7 +538,7 @@ export async function getLocationDatums(
 
   let raw: any = {
     locationId: locationId,
-    sourceIds: 'OpenWeatherMap',
+    sourceIds: sourceId,
     mostRecent: mostRecent
   }
 

@@ -280,6 +280,12 @@ async function listLocationSourceMeasurements(
   }
 
   const datum = result.value.response.data.results[0]
+  if (!datum) {
+    console.log(
+      `No recent datum found for location ${id} source ${source}.`)
+    return Result.ok(void (0))
+  }
+
   let rows =
     []
   const ignore = new Set([
