@@ -340,6 +340,11 @@ async function listLocationSources(id: string):
       new Error(`Failed to get matching source IDS: ${result.error}`))
   }
 
+  if (result.value.length === 0) {
+    console.log(`No source metadata found for location ${id}.`)
+    return Result.ok(void (0))
+  }
+
   let rows = []
   let collected = new Set()
   let cols =

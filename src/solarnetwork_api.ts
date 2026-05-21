@@ -617,7 +617,7 @@ export async function getLocationMeta(
   cfg: SNConfig, locationId: string): Promise<Result<LocationMeta[], Error>> {
   const auth = new AuthorizationV2Builder(cfg.token).saveSigningKey(cfg.secret)
 
-  const url = `${cfg.url}/solarquery/api/v1/sec/location/meta/${locationId}`
+  const url = `${cfg.url}/solarquery/api/v1/pub/location/meta/${locationId}`
 
   const fetchUrl = new URL(url)
   const urlString = encodeSolarNetworkUrl(fetchUrl)
@@ -635,7 +635,7 @@ export async function getLocationMeta(
 
     if (!response.success) {
       return Result.err(Error(
-        'SolarNetwork API call failed: /solarquery/api/v1/sec/location/meta'))
+        'SolarNetwork API call failed: /solarquery/api/v1/pub/location/meta'))
     }
 
     return Result.ok(response.data.results)
