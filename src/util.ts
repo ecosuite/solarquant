@@ -6,28 +6,16 @@ export interface MomentRange {
 }
 
 export function getDateRanges(a: Moment, b: Moment): MomentRange[] {
-  let ret = []
+  let ret: MomentRange[] = []
+  const end = moment(b)
 
-  for (let m = moment(a); m.diff(b, 'months') <= 0; m.add(1, 'months')) {
-    let start;
-    let end;
-
-    if (m.isSame(a)) {
-      start = a
-      end = moment(m).add(1, 'months')
-    } else if (m.isSame(b)) {
-      break
-    } else {
-      start = m
-      end = moment(m).add(1, 'months')
-    }
-
-    if (start && end) {
-      ret.push({
-        beginInclusive: moment(start),
-        endExclusive: moment(end),
-      })
-    }
+  for (let start = moment(a); start.isBefore(end);) {
+    const rangeEnd = moment.min(moment(start).add(1, 'months'), end)
+    ret.push({
+      beginInclusive: moment(start),
+      endExclusive: moment(rangeEnd),
+    })
+    start = moment(rangeEnd)
   }
 
   return ret

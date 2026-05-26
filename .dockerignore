@@ -1,0 +1,11 @@
+# Reinstalled / regenerated inside the image -- never copy from the host.
+node_modules
+dist
+
+# Not needed at runtime; keeps the build context and image small.
+.git
+.gitignore
+docs
+img
+test
+example

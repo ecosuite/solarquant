@@ -503,17 +503,60 @@ export async function listSourceMeasurements(path: string):
 
 interface SNChunk {
   response: TaggedStreamResponse,
+  source: string,
+  start: string,
+  end: string,
   total: number
+}
+
+interface SNFetchFailure {
+  source: string
+  start: string
+  end: string
+  error: Error
+}
+
+const SN_DATUM_FETCH_ATTEMPTS = 3
+const SN_DATUM_FETCH_RETRY_BASE_MS = 500
+
+function toError(e: unknown): Error {
+  return e instanceof Error ? e : new Error(String(e))
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+async function getDatumsWithRetry(
+  cfg: SNConfig, source: string, ids: any, start: string, end: string,
+  aggregation?: string): Promise<Result<TaggedStreamResponse, Error>> {
+  let lastError = new Error('Unknown SolarNetwork datum fetch error')
+
+  for (let attempt = 1; attempt <= SN_DATUM_FETCH_ATTEMPTS; attempt++) {
+    const response = await getDatums(
+      cfg, false, source, ids, start, end, aggregation)
+    if (response.isOk) {
+      return response
+    }
+
+    lastError = response.error
+    if (attempt < SN_DATUM_FETCH_ATTEMPTS) {
+      await sleep(SN_DATUM_FETCH_RETRY_BASE_MS * attempt)
+    }
+  }
+
+  return Result.err(lastError)
 }
 
 async function fetchSNDatumsProducer(
   cfg: SNConfig, chan: SimpleChannel<SNChunk>, bar: MultiBar, ids: any,
   sources: string[], format: string, start: string, end: string,
-  opts: any) {
+  opts: any): Promise<SNFetchFailure[]> {
   if (!sources) {
-    return
+    return []
   }
 
+  const failures: SNFetchFailure[] = []
   const ranges = getDateRanges(moment(start), moment(end))
 
   for (const source of sources) {
@@ -531,20 +574,37 @@ async function fetchSNDatumsProducer(
 
         b.update(total, { sourceId: source })
 
-        const response = await getDatums(
-          cfg, false, source, ids, s, e, opts['aggregation'])
+        const response = await getDatumsWithRetry(
+          cfg, source, ids, s, e, opts['aggregation'])
         if (response.isErr) {
-          console.error(`Warning: some datums failed to be fetched: ${response.error.message}`)
+          failures.push({
+            source: source,
+            start: s,
+            end: e,
+            error: response.error
+          })
+          console.error(
+            `Error: failed to fetch datums for ${source} from ${s} to ${e}: ${response.error.message}`)
           continue
         }
 
-        chan.send({ response: response.value, total: total })
+        chan.send({
+          response: response.value,
+          source: source,
+          start: s,
+          end: e,
+          total: total
+        })
       }
-    } catch (e: any) {
-      console.error(`Source ${source} failed: ${e}`)
+    } catch (e: unknown) {
+      const error = toError(e)
+      failures.push({ source: source, start: start, end: end, error: error })
+      console.error(`Error: source ${source} failed: ${error.message}`)
     }
     bar.remove(b)
   }
+
+  return failures
 }
 
 async function fetchSNDatumsConsumer(
@@ -571,7 +631,8 @@ async function fetchSNDatumsConsumer(
     b.increment()
 
     if (!chunk.response.success) {
-      continue
+      throw new Error(
+        `SolarNetwork returned an unsuccessful response for ${chunk.source} from ${chunk.start} to ${chunk.end}`)
     }
 
     const d = new DatumStreamMetadataRegistry(chunk.response.meta)
@@ -791,6 +852,10 @@ export async function fetchLocationDatums(
   const datums = await getLocationDatums(
     cfg, false, locationId, opts['source'], start, end,
     opts['aggregation'])
+
+  if (datums.isErr) {
+    return Result.err(datums.error)
+  }
 
   if (datums.isOk) {
     let rows: RawLocationDatum[] | AggregatedLocationDatum[] =
@@ -1022,9 +1087,12 @@ export async function fetchSNDatums(
     cliProgress.Presets.rect)
 
   try {
-    stream.write(`sourceId,objectId,${format}\n`)
+    const parallel: number = parseInt(opts['parallel'], 10)
+    if (!Number.isInteger(parallel) || parallel < 1) {
+      return Result.err(new Error('--parallel must be a positive integer'))
+    }
 
-    const parallel: number = parseInt(opts['parallel'])
+    stream.write(`sourceId,objectId,${format}\n`)
 
     const chan = new SimpleChannel<SNChunk>();
     const groups = chunkArray(sources.value, parallel)
@@ -1038,15 +1106,24 @@ export async function fetchSNDatums(
           sncfg, chan, bar, ids.value, groups[i],
           format, start, end, opts))
 
-    await Promise.all(p2)
+    const producerFailures = (await Promise.all(p2)).flat()
     chan.close()
 
     await p1
-  } catch (e) {
-    console.error(e)
+
+    if (producerFailures.length > 0) {
+      const firstFailure = producerFailures[0]
+      return Result.err(new Error(
+        `Failed to fetch ${producerFailures.length} datum chunk(s); output may be incomplete. ` +
+        `First failure: ${firstFailure.source} ${firstFailure.start} to ${firstFailure.end}: ` +
+        firstFailure.error.message))
+    }
+  } catch (e: unknown) {
+    return Result.err(toError(e))
+  } finally {
+    bar.stop()
   }
 
-  bar.stop()
   return Result.ok(void (0))
 }
 
@@ -1371,4 +1448,3 @@ export async function startExportTask(
 
   return Result.ok(void (0))
 }
-

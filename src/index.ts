@@ -8,6 +8,7 @@ import { authenticateAMS, authenticateSolarNetwork, setConfigPath } from './conf
 import { fetchSNDatums, listSourceMeasurements, fetchCompressionTypes, fetchDestinationTypes, fetchOutputTypes, fetchExportTasks, startExportTask, FetchSource, listLocationMeasurements, getDefaultFormat } from './solarnetwork.js';
 
 import { createWriteStream } from 'fs';
+import { finished } from 'stream/promises';
 
 import { initPlugin } from './plugin.js';
 
@@ -177,7 +178,6 @@ stream
   .description('Dump datums specified by source')
   .action(async () => {
     const opts = stream.opts()
-    const fd = createWriteStream(opts['output'])
 
     let src: FetchSource
     if (opts['location']) {
@@ -192,6 +192,7 @@ stream
       const result = await getDefaultFormat(opts['source'])
       if (result.isErr) {
         console.error('Failed to get default format: ' + result.error.message)
+        process.exitCode = 1
         return
       }
       format = result.value
@@ -200,13 +201,16 @@ stream
       format = opts['format']
     }
 
+    const fd = createWriteStream(opts['output'])
     const result =
       await fetchSNDatums(fd, src, format, opts['start'], opts['end'], opts)
 
-    fd.close()
+    fd.end()
+    await finished(fd)
 
     if (result.isErr) {
       console.error(result.error.message)
+      process.exitCode = 1
     }
   })
 
@@ -308,4 +312,3 @@ quant.option('--config <configPath>', 'Path to config file')
   .addCommand(plugin)
 
 quant.parse(process.argv)
-
