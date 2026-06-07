@@ -2,8 +2,8 @@
 
 This repository contains the SolarQuant environment tooling, which allows
 the user to easily source training data to be used for training machine
-learning predictors. SolarQuant works by consuming OrangeButton and
-SolarNetwork (http://solarnetwork.net) data, both of which are free and open source.
+learning predictors. SolarQuant works by consuming [OrangeButton](https://www.oballiance.org/community-working-groups) and
+[SolarNetwork](http://solarnetwork.net) data, both of which are free and open source.
 
 High level process flow:
 ![High level SolarQuant process flow diagram](img/SolarQuant_and_SQC_process_flow-2000x1250.jpg)
